@@ -108,7 +108,7 @@ class BasicUserFieldsMixin(
         abstract = True
 
 
-class ActiveUserMixin(models.Model):
+class ActiveUserMixin(BasicUserFieldsMixin):
     is_active = models.BooleanField(_('active'), default=True)
 
     class Meta:
