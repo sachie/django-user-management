@@ -79,7 +79,11 @@ class IsStaffUserMixin(models.Model):
 
 
 @python_2_unicode_compatible
-class NameUserMethodsMixin:
+class NameUserMethodsMixin(models.Model):
+
+    class Meta:
+        abstract = True
+        
     def get_full_name(self):
         return self.name
 
