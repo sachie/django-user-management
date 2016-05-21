@@ -22,8 +22,6 @@ class GetAuthToken(ObtainAuthToken):
     Define a `POST` (create) method to authenticate a user using their `email` and
     `password` and return a `token` if successful.
     The `token` remains valid until `settings.AUTH_TOKEN_MAX_AGE` time has passed.
-
-    `DELETE` method removes the current `token` from the database.
     """
     model = models.AuthToken
     throttle_classes = [
@@ -39,6 +37,7 @@ class GetAuthToken(ObtainAuthToken):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             signals.user_logged_in.send(type(self), user=user, request=request)
+            self.model.objects.filter(user=user).delete()
             token = self.model.objects.create(user=user)
             token.update_expiry()
             return response.Response({'token': token.key})
@@ -46,13 +45,28 @@ class GetAuthToken(ObtainAuthToken):
         return response.Response(
             serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class DeleteAuthToken(ObtainAuthToken):
+    """
+    Delete authentication token.
+
+    `DELETE` method removes the current `token` from the database.
+    """
+    model = models.AuthToken
+    throttle_classes = [
+        throttling.UsernameLoginRateThrottle,
+        throttling.LoginRateThrottle,
+    ]
+    throttle_scope = 'logins'
+
     def delete(self, request, *args, **kwargs):
         """Delete auth token when `delete` request was issued."""
         # Logic repeated from DRF because one cannot easily reuse it
         auth = get_authorization_header(request).split()
 
         if not auth or auth[0].lower() != b'token':
-            return response.Response(status=status.HTTP_400_BAD_REQUEST)
+            msg = 'No credentials provided.'
+            return response.Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
         if len(auth) == 1:
             msg = 'Invalid token header. No credentials provided.'
@@ -153,6 +167,7 @@ class OneTimeUseAPIMixin(object):
 
     Set user as a class attribute or raise an `InvalidExpiredToken`.
     """
+
     def initial(self, request, *args, **kwargs):
         uidb64 = kwargs['uidb64']
         uid = urlsafe_base64_decode(force_text(uidb64))
