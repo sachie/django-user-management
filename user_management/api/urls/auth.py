@@ -1,13 +1,6 @@
-from django.conf.urls import patterns, url
-
+from django.conf.urls import url
 from .. import views
 
-
-urlpatterns = patterns(
-    '',
-    url(
-        regex=r'^auth/?$',
-        view=views.GetAuthToken.as_view(),
-        name='auth',
-    ),
-)
+urlpatterns = [
+    url(r'^auth/?$', views.GetAuthToken.as_view(), name='auth'),
+]
