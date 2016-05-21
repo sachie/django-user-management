@@ -43,13 +43,11 @@ class RegistrationSerializer(ValidateEmailMixin, serializers.ModelSerializer):
     )
     password = serializers.CharField(
         write_only=True,
-        min_length=8,
         label=_('Password'),
         validators=[validate_password_strength],
     )
     password2 = serializers.CharField(
         write_only=True,
-        min_length=8,
         label=_('Repeat password'),
     )
 
@@ -79,13 +77,11 @@ class PasswordChangeSerializer(serializers.ModelSerializer):
     )
     new_password = serializers.CharField(
         write_only=True,
-        min_length=8,
         label=_('New password'),
         validators=[validate_password_strength],
     )
     new_password2 = serializers.CharField(
         write_only=True,
-        min_length=8,
         label=_('Repeat new password'),
     )
 
@@ -116,13 +112,11 @@ class PasswordChangeSerializer(serializers.ModelSerializer):
 class PasswordResetSerializer(serializers.ModelSerializer):
     new_password = serializers.CharField(
         write_only=True,
-        min_length=8,
         label=_('New password'),
         validators=[validate_password_strength],
     )
     new_password2 = serializers.CharField(
         write_only=True,
-        min_length=8,
         label=_('Repeat new password'),
     )
 
